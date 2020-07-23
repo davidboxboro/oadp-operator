@@ -4,8 +4,8 @@
 
 Velero hooks enable the execution of terminal commands before and after resources are backed up. 
 
-Before a backup, "pre" hooks are used to freeze resources so that they cannot be modified as the backup is taking place.
-After a backup, "post" hooks are used to unfreeze those resources so that can return to their normal state afte the backup is complete.
+Before a backup, "pre" hooks are used to freeze resources, so that they are not modified as the backup is taking place.
+After a backup, "post" hooks are used to unfreeze those resources so that can altered again.
 
 ## Postgres (Patroni)
 
@@ -29,10 +29,11 @@ post.hook.backup.velero.io/container: patroni-persistent
 
 The Velero hooks are specified as annotations in the [template](https://github.com/kurwang/velero-examples/blob/cassandra-branch/cassandra/roles/install-cassandra/templates/cassandra-app.yaml.j2#L18).
 
-This line specifies the "pre" hook to freeze resources before backup:
+This line specifies the "pre" hook. It causes the node to stop listening to connections from the client and other nodes.
 
 ```
 pre.hook.backup.velero.io/command: '["/bin/bash", "-c", "opt/cassandra/bin/nodetool drain"]'
 ```
 
+No "post" hook is necessary in this case: once a backup is taken and deleted, the node is restarted and will start listening to the connection(s) again. 
 
